@@ -1,0 +1,11 @@
+#core = 7.x
+#name = "Task Editing Form"
+#description = "Module edits a task editing form."
+#package = Custom
+
+name: Task Editing Form
+description: Module edits a task editing form
+package: Custom
+
+type: module
+core: 8.x

@@ -1,0 +1,15 @@
+jk_assign_task:
+  version: 1.x
+  js:
+    js/jk_assign_task.js: {}
+  dependencies:
+    - core/jquery
+    - core/ajax
+
+autocomplete_assigned_tasks_title:
+  version: 1.x
+  js:
+    js/autocomplete_assigned_tasks_title.js: {}
+  dependencies:
+    - core/jquery
+    - core/ajax

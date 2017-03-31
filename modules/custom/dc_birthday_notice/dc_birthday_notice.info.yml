@@ -1,0 +1,4 @@
+name = DC Birthday Notice
+description = Show notice when employee has birthday
+core = 7.x
+package = Custom

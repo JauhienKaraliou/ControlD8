@@ -1,0 +1,103 @@
+<?php
+/**
+ * @file
+ * Show notice when employee has birthday
+ */
+define('DC_BIRTHDAY_NOTICE_COUNT_SHOW_NOTICE', 10);
+
+/**
+ * Implements hook_preprocess().
+ */
+function dc_birthday_notice_preprocess(&$vars, $hook) {
+  if ($hook == 'page' && drupal_is_front_page() && user_is_logged_in()) {
+    $nodes = node_load_multiple(array(), array('type' => 'employees'));
+
+    foreach ($nodes as $node) {
+      if (!isset($node->field_date_of_birthday['und'][0]['value'])) {
+        continue;
+      }
+      $days = _dc_birthday_notice_get_days($node);
+
+      if (!isset($_SESSION['count_show_notice_' . $node->title . '_' . $days['today']])) {
+        $_SESSION['count_show_notice_' . $node->title . '_' . $days['today']] = 0;
+      }
+
+      if (($days['born_date'] == $days['next_day'] || $days['born_date'] == $days['today']) && $_SESSION['count_show_notice_' . $node->title . '_' . $days['today']] < DC_BIRTHDAY_NOTICE_COUNT_SHOW_NOTICE) {
+        drupal_add_js(drupal_get_path('module', 'dc_birthday_notice') . '/dc_birthday_notice.js');
+        $vars['scripts'] = drupal_get_js();
+
+        if ($days['born_date'] == $days['next_day']) {
+          $vars['page']['content']['system_main']['content']['#markup'] .= "<div class='notice'><span class='title'>$node->title</span> has birthday tomorrow</div>";
+        }
+        else {
+          $vars['page']['content']['system_main']['content']['#markup'] .= "<div class='notice'><span class='title'>$node->title</span> has birthday today</div>";
+        }
+        $_SESSION['count_show_notice_' . $node->title . '_' . $days['today']]++;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function dc_birthday_notice_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'birthday_tomorrow':
+      $message['subject'] = t('Colleague has a birthday tomorrow');
+      $message['body'][] = t('Your Colleague ' . $params['employee_name'] . ' has a birthday tomorrow!');
+      break;
+    case 'birthday_today':
+      $message['subject'] = t('Colleague has a birthday today');
+      $message['body'][] = t('Your Colleague ' . $params['employee_name'] . ' has a birthday today!');
+      break;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function dc_birthday_notice_cron() {
+  $nodes = node_load_multiple(array(), array('type' => 'employees'));
+
+  foreach ($nodes as $node) {
+    if (!isset($node->field_date_of_birthday['und'][0]['value'])) {
+      continue;
+    }
+    $days = _dc_birthday_notice_get_days($node);
+
+    if ($days['born_date'] == $days['next_day']) {
+      foreach ($nodes as $employee) {
+        if ($employee->nid != $node->nid) {
+          $params = array('employee_name' => $node->title);
+          drupal_mail('dc_birthday_notice', 'birthday_tomorrow', $employee->field_email['und'][0]['value'], language_default(), $params, 'alex.unlitsolutions@gmail.com', TRUE);
+        }
+      }
+    }
+    elseif ($days['born_date'] == $days['today']) {
+      foreach ($nodes as $employee) {
+        if ($employee->nid != $node->nid) {
+          $params = array('employee_name' => $node->title);
+
+          drupal_mail('dc_birthday_notice', 'birthday_today', $employee->field_email['und'][0]['value'], language_default(), $params, 'alex.unlitsolutions@gmail.com', TRUE);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Return born day, today and  next day.
+ */
+function _dc_birthday_notice_get_days($node) {
+  $born_date = new DateTime(date('Y-m-d', $node->field_date_of_birthday['und'][0]['value']));
+  $next_day = new DateTime(date('Y-m-d'));
+  $today = new DateTime(date('Y-m-d'));
+
+  $days = array();
+  $days['born_date'] = $born_date->format('j n');
+  $days['today'] = $today->format('j n');
+  $days['next_day'] = $next_day->modify('+1 day')->format('j n');
+
+  return $days;
+}

@@ -1,0 +1,4 @@
+name = DC Mailer
+description = Send email after assigned task
+core = 7.x
+package = Custom

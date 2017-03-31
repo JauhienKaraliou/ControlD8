@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * The module allows change task status
+ */
+
+// Sets a status DONE to assigned task.
+define('DC_CHANGER_TASK_STATUS_DONE', '1');
+define('DC_CHANGER_TASK_STATUS_IN_PROGRESS', '2');
+
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Implements hook_update_N().
+ */
+function dc_changer_update_8111(&$sandbox) {
+  $term = Term::create([
+    'name' => 'Not done',
+    'vid' => 'statuses',
+    'description' => 'Status is set when employee didn\'t cope with task',
+  ])->save();
+}
+

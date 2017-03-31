@@ -1,0 +1,11 @@
+#name = Changer
+#description = The module allows change task status
+#core = 7.x
+#package = Custom
+
+name: Changer
+description: The module allows change task status
+package: Custom
+
+type: module
+core: 8.x

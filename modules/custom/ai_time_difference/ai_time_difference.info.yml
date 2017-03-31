@@ -1,0 +1,6 @@
+name = Time difference token
+description = Module counts time difference between starting and completing assignedtask and creates token with it.
+core = 7.x
+
+package = Custom
+dependencies[] = rules

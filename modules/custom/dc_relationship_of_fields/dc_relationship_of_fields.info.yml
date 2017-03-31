@@ -1,0 +1,5 @@
+name = Relationship of fields
+description = Relationship of fields
+core = 7.x
+
+package = Custom

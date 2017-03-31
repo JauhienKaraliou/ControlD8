@@ -1,0 +1,272 @@
+.notice {
+    padding: 15px;
+    display: inline-block;
+    position: fixed;
+    z-index: 1000;
+    right: 30px;
+    top: 93px;
+    background-color: #d7ebf5;
+    opacity: 0.8;
+    text-align: center;
+    color: #3a89a6;
+    font-size: 1.1em;
+    border: 1px solid #319092;
+    border-radius: 4%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.notice .title {
+    margin-bottom: 5px;
+    color: #317092;
+    font-weight: bold;
+}
+
+.close_notice {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    height: 27px;
+    width: 27px;
+    background-color: #4F4C4F;
+    border-radius: 100%;
+    border: 2px solid white;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.task_box_title {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.task_box_title a, .task_box_assign a, .assign_done .task_box_assign span, .assign_in_progress .task_box_assign span, .assign_not_done .task_box_assign span {
+    transition: 0.5s;
+    padding: 2% 0;
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.task_box_title a:hover {
+    transition: 0.5s;
+    background-color: #ddd;
+}
+
+.task_box_body {
+    padding: 2% 2%;
+    text-align: center;
+}
+
+.task_box_assign {
+    text-align: center;
+}
+
+.task_box_assign a, .assign_done .task_box_assign span, .assign_in_progress .task_box_assign span, .assign_not_done .task_box_assign span {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    font-weight: bold;
+    background-color: #ddd;
+}
+
+.task_box_assign a:hover {
+    background-color: #a3a3a3;
+    color: white;
+}
+
+.assigned {
+    position: absolute;
+    padding: 0;
+    width: 100%;
+    height: 155px;
+    overflow: hidden;
+
+}
+
+.assign-wrapper {
+    position: relative;
+    float: left;
+    width: 23.4%;
+    margin-right: 15px;
+    margin-bottom: 20px;
+    height: 155px
+}
+
+.assigned:hover {
+    height: auto;
+    min-height: 155px;
+    padding-bottom: 30px;
+    z-index: 99;
+}
+
+.assign_not_done {
+    background-color: #ff2b32;
+    opacity: 0.5;
+}
+
+.assign_done {
+    background-color: #8ae880;
+    opacity: 0.5;
+}
+
+.assign_in_progress {
+    background-color: #fffea1;
+}
+
+.assign_in_progress .task_box_title a:hover {
+    background-color: #fff46a;
+}
+
+.assign_in_progress .task_box_title a {
+    color: #f36b0d;
+}
+
+.assign_done .task_box_assign span {
+    background-color: #66b35d;
+    color: #f8f055;
+    cursor: default;
+}
+
+.assign_not_done .task_box_assign span {
+    background-color: #b51e24;
+    color: white;
+    cursor: default;
+}
+
+.assign_done .task_box_title a {
+    color: white;
+}
+
+.assign_done:hover .task_box_title a {
+    color: #66b35d;
+}
+
+.assign_done .task_box_title a:hover {
+    background-color: #66b35d;
+    color: #f8f055;
+}
+
+.assign_done:hover, .assign_not_done:hover {
+    background-color: white;
+    opacity: 1;
+}
+
+.assign_in_progress .task_box_assign span {
+    left: 0;
+    color: #f36b0d;
+    background-color: #fff46a;
+    cursor: default;
+}
+
+.assign_not_done .task_box_title a {
+    color: white;
+}
+
+.assign_not_done:hover .task_box_title a {
+    color: #b51e24;
+}
+
+.assign_not_done .task_box_title a:hover {
+    background-color: #b51e24;
+    color: white;
+}
+
+div.table-responsive table > tbody > tr > td {
+    padding: 4px;
+}
+
+.table_assign_title a {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+div.table-responsive table.views-table span.done {
+    font-weight: bold;
+    text-align: right;
+    display: block;
+}
+
+div.table-responsive table.views-table .table_assign_title {
+    font-weight: bold;
+    text-align: center;
+}
+
+div.table-responsive table.views-table tr.table_assign_done {
+    background-color: #8ae880;
+}
+
+div.table-responsive table.views-table tr.table_assign_done td {
+    border-top: 1px solid #53c24e;
+}
+
+div.table-responsive table.views-table tr.table_assign_done .table_assign_title a {
+    color: #197e00;
+}
+
+div.table-responsive table.views-table tr.table_assign_done .table_assign_title:hover {
+    background-color: #79d36f;
+}
+
+div.table-responsive table.views-table tr.table_assign_in_progress {
+    background-color: #fffea1;
+}
+
+div.table-responsive table.views-table tr.table_assign_in_progress td {
+    border-top: 1px solid #dcd64a;
+}
+
+div.table-responsive table.views-table tr.table_assign_in_progress .table_assign_title a {
+    color: #f36b0d;
+}
+
+div.table-responsive table.views-table tr.table_assign_in_progress .table_assign_title:hover {
+    background-color: #fff46a;
+    cursor: pointer;
+}
+
+div.table-responsive table.views-table tr.table_assign_not_done {
+    background-color: #e82a30;
+}
+
+div.table-responsive table.views-table tr.table_assign_not_done td {
+    border-top: 1px solid #b51e24;
+}
+
+div.table-responsive table.views-table tr.table_assign_not_done .table_assign_title a{
+    color: white;
+}
+
+div.table-responsive table.views-table tr.table_assign_not_done .table_assign_title:hover {
+    background-color: #a01c21;
+    cursor: pointer;
+}
+
+div.table-responsive table.views-table tr.table_assign_not_done .done {
+    color: white;
+}
+
+div.table-responsive table.views-table tr.table_assign_in_progress .table_assign_title, div.table-responsive table.views-table tr.table_assign_in_progress .table_assign_title:hover,
+div.table-responsive table.views-table tr.table_assign_done .table_assign_title,
+div.table-responsive table.views-table tr.table_assign_done .table_assign_title:hover,
+div.table-responsive table.views-table tr.table_assign_not_done .table_assign_title,
+div.table-responsive table.views-table tr.table_assign_not_done .table_assign_title:hover {
+    transition: 0.5s;
+}
+
+.modes {
+    margin-right: 10%;
+    text-align: right;
+}
+
+.list_mode, .table_mode {
+    font-size: 1.2em;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.list_mode:hover, .table_mode:hover {
+    color: #a01c21;
+}

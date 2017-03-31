@@ -1,0 +1,11 @@
+#name = DC Convert to seconds
+#description = Convert DD:HH:MM:SS to seconds
+#core = 7.x
+#package = Custom
+
+name: DC Convert to seconds
+description: Convert DD:HH:MM:SS to seconds
+package: Custom
+
+type: module
+core: 8.x

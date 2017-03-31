@@ -1,0 +1,13 @@
+jk_assign_task.get_assign_form:
+  path: 'all_tasks/{method}/{nid}'
+  defaults:
+    _controller: '\Drupal\jk_assign_task\Controller\TaskController::assignForm'
+  requirements:
+    _permission: 'access content'
+
+jk_assign_task.assign_task:
+  path: 'assign-task/{method}/node/{nid_employee}/{nid_task}'
+  defaults:
+    _controller: '\Drupal\jk_assign_task\Controller\TaskController::assignTask'
+  requirements:
+    _permission: 'access content'

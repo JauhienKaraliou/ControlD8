@@ -1,0 +1,6 @@
+birthday-notice:
+  version: 1.x
+  js:
+    js/dc_birthday_notice.js: {}
+  dependencies:
+    - core/jquery

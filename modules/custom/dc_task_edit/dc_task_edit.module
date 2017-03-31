@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Dc_task_edit module: edits a task editing form.
+ *
+ * Edits a task editing form.
+ * Creates a new 'task_number' variable to store a task number.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function dc_task_edit_form_tasks_node_form_alter(&$form, &$form_state, $form_id) {
+  if(empty($form_state['node']->nid)){
+    // Check whether there is a persistent 'task_number' variable.
+//    !empty(variable_get('task_number')) ? variable_get('task_number') : variable_set('task_number', '1');
+
+    // Get a value of a persistent 'task_number' variable.
+//    $task_number = variable_get('task_number');
+    $task_number = \Drupal::state()->get('task_number') ?: 1;
+    // Filling of a title field.
+    $form['title']['#default_value'] = t('Задание @task_num', array('@task_num' => $task_number));
+  }
+}
+
+/**
+ * Implements hook_node_insert($node).
+ */
+function dc_task_edit_node_insert($node) {
+  if ($node->type === 'tasks' ) {
+    // Get a value of a persistent 'task_number' variable.
+    $task_number = \Drupal::state()->get('task_number') ?: 1;
+    // Increasing a value of a persistent 'task_number' variable.
+//    $new_task_number = intval($task_number + 1);
+    // Setting a new value to a persistent 'task_number' variable.
+//    variable_set('task_number', $new_task_number);
+    \Drupal::state()->set('task_number', ++$task_number);
+  }
+}

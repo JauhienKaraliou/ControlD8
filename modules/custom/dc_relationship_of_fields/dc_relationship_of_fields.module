@@ -1,0 +1,355 @@
+<?php
+/**
+ * @file
+ * Relationship of fields
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function dc_relationship_of_fields_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+
+  if (current_path() == 'node/add/assigned-tasks') {
+    $form_state['build_info']['args']['main'] = array(TRUE);
+  }
+
+  if ($form_id == 'tasks_node_form') {
+    $form['field_section_task'][LANGUAGE_NONE]['#options'] = _dc_relationship_get_sections_options_by_uid();
+    $form['field_section_task'][LANGUAGE_NONE]['#default_value'] = NULL;
+    $form['field_section_task'][LANGUAGE_NONE]['#ajax'] = array(
+      'callback' => 'dc_relationship_of_fields_task_topic_form',
+      'wrapper' => 'topic-list',
+    );
+
+    $form['field_task_topic'][LANGUAGE_NONE]['#prefix'] = '<div id="topic-list">';
+    $form['field_task_topic'][LANGUAGE_NONE]['#suffix'] = '</div>';
+
+    $tid_section = '';
+    if (isset($form['field_section_task']['und']['#default_value'][0])) {
+      $tid_section = $form['field_section_task']['und']['#default_value'][0];
+    }
+
+    if (isset($form_state['values']['field_section_task'][LANGUAGE_NONE][0]['target_id'])) {
+      $tid_section = $form_state['values']['field_section_task'][LANGUAGE_NONE][0]['target_id'];
+    }
+
+    $form['field_task_topic'][LANGUAGE_NONE]['#options'] = dc_relationship_of_fields_get_topics_options($tid_section);
+
+    if (empty($form['field_task_topic'][LANGUAGE_NONE]['#options'])) {
+      $form['field_task_topic']['und']['#default_value'] = NULL;
+    }
+  }
+
+  if ($form_id == 'assigned_tasks_node_form' && isset($form_state['build_info']['args']['main'])) {
+    $form['field_nid_employee'][LANGUAGE_NONE]['#options'] = _dc_relationship_get_employees_options_by_uid();
+
+    $form['field_nid_employee'][LANGUAGE_NONE]['#default_value'] = NULL;
+    $form['field_section_at'][LANGUAGE_NONE]['#default_value'] = NULL;
+    $form['field_topic_at'][LANGUAGE_NONE]['#default_value'] = NULL;
+    $form['field_nid_task'][LANGUAGE_NONE]['#default_value'] = NULL;
+
+    $form['field_nid_employee'][LANGUAGE_NONE]['#ajax'] = array(
+      'callback' => '_dc_relationship_of_fields_field_section_at',
+      'wrapper' => 'section-list',
+    );
+
+    $form['field_section_at'][LANGUAGE_NONE]['#ajax'] = array(
+      'callback' => '_dc_relationship_of_fields_field_topic_at',
+      'wrapper' => 'topic-list',
+    );
+
+    $form['field_topic_at'][LANGUAGE_NONE]['#ajax'] = array(
+      'callback' => '_dc_relationship_of_fields_field_nid_task',
+      'wrapper' => 'tasks-list',
+    );
+
+    $form['field_section_at'][LANGUAGE_NONE]['#prefix'] = '<div id="section-list">';
+    $form['field_section_at'][LANGUAGE_NONE]['#suffix'] = '</div>';
+
+    $form['field_topic_at'][LANGUAGE_NONE]['#prefix'] = '<div id="topic-list">';
+    $form['field_topic_at'][LANGUAGE_NONE]['#suffix'] = '</div>';
+
+    $form['field_nid_task'][LANGUAGE_NONE]['#prefix'] = '<div id="tasks-list">';
+    $form['field_nid_task'][LANGUAGE_NONE]['#suffix'] = '</div>';
+
+    $nid_employee = '';
+    if (isset($form['field_nid_employee'][LANGUAGE_NONE]['#default_value'][0])) {
+      $nid_employee = $form['field_nid_employee'][LANGUAGE_NONE]['#default_value'][0];
+    }
+
+    if (isset($form_state['values']['field_nid_employee'][LANGUAGE_NONE][0]['target_id'])) {
+      $nid_employee = $form_state['values']['field_nid_employee'][LANGUAGE_NONE][0]['target_id'];
+    }
+
+    $form['field_section_at'][LANGUAGE_NONE]['#options'] = _dc_relationship_of_fields_get_sections_options($nid_employee);
+
+    $tid_section = '';
+    if (isset($form_state['values']['field_section_at'][LANGUAGE_NONE][0]['target_id'])) {
+      $tid_section = $form_state['values']['field_section_at'][LANGUAGE_NONE][0]['target_id'];
+    }
+
+    $form['field_topic_at'][LANGUAGE_NONE]['#options'] = dc_relationship_of_fields_get_topics_options($tid_section);
+
+    $tid_topic = '';
+    if (isset($form_state['values']['field_topic_at'][LANGUAGE_NONE][0]['target_id'])) {
+      $tid_topic = $form_state['values']['field_topic_at'][LANGUAGE_NONE][0]['target_id'];
+    }
+
+    $form['field_nid_task'][LANGUAGE_NONE]['#options'] = _dc_relationship_of_fields_get_tasks_options($tid_topic, $nid_employee);
+
+    $hidden_fields = array(
+      'field_date_of_completion',
+      'field_spent_time',
+      'field_spent_time_in_seconds',
+      'field_delay_time',
+    );
+    _ai_assign_task_set_access_false($form, $hidden_fields);
+  }
+
+  if ($form_id == 'employees_node_form') {
+    $form['field_sections_employees'][LANGUAGE_NONE]['#options'] = _dc_relationship_get_sections_options_by_uid();
+  }
+
+  if ($form_id == 'taxonomy_form_term') {
+    $form['field_section'][LANGUAGE_NONE]['#options'] = _dc_relationship_get_sections_options_by_uid();
+    $form['field_author_topic'][LANGUAGE_NONE]['#default_value'] = $user->uid;
+
+    $hidden_fields = array('field_author_topic');
+    _ai_assign_task_set_access_false($form, $hidden_fields);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function dc_relationship_of_fields_update_7100(&$sandbox) {
+  $vocabulary_sections = taxonomy_vocabulary_machine_name_load('sections');
+
+  $term_drupal_7 = new stdClass();
+  $term_drupal_7->name = 'Drupal 7';
+  $term_drupal_7->vid = $vocabulary_sections->vid;
+  taxonomy_term_save($term_drupal_7);
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function dc_relationship_of_fields_update_7101(&$sandbox) {
+  $vocabulary_task_topic = taxonomy_vocabulary_machine_name_load('task_topic');
+  $term_drupal_7 = array_shift(taxonomy_term_load_multiple(NULL, array('name' => 'Drupal 7')));
+  $topic_terms = taxonomy_term_load_multiple(NULL, array('vid' => $vocabulary_task_topic->vid));
+
+  foreach ($topic_terms as $topic_term) {
+    $topic_term->field_section['und'][0]['target_id'] = $term_drupal_7->tid;
+    taxonomy_term_save($topic_term);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function dc_relationship_of_fields_update_7106(&$sandbox) {
+  $term_drupal_7 = array_shift(taxonomy_term_load_multiple(NULL, array('name' => 'Drupal 7')));
+  $tasks_nodes = node_load_multiple(NULL, array('type' => 'tasks'));
+
+  foreach ($tasks_nodes as $tasks_node) {
+    $tasks_node->field_section_task[LANGUAGE_NONE][0]['target_id'] = $term_drupal_7->tid;
+    node_save($tasks_node);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function dc_relationship_of_fields_update_7107(&$sandbox) {
+  $employees = node_load_multiple(NULL, array('type' => 'employees'));
+  $term_drupal_7 = array_shift(taxonomy_term_load_multiple(NULL, array('name' => 'Drupal 7')));
+
+  foreach ($employees as $employee) {
+    $employee->field_sections_employees[LANGUAGE_NONE][0]['target_id'] = $term_drupal_7->tid;
+    node_save($employee);
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function dc_relationship_of_fields_update_7108(&$sandbox) {
+  global $user;
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('task_topic');
+  $topics = taxonomy_term_load_multiple(NULL, array('vid' => $vocabulary->vid));
+  foreach ($topics as $topic) {
+    $topic->field_author_topic[LANGUAGE_NONE][0]['target_id'] = $user->uid;
+    taxonomy_term_save($topic);
+  }
+}
+
+/**
+ * Return select options of topics relations with sections.
+ */
+function dc_relationship_of_fields_get_topics_options($tid_section) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('task_topic');
+
+  $query = db_select('taxonomy_term_data', 'ttd');
+  $query->fields('ttd', array('tid', 'name'));
+  $query->innerJoin('field_data_field_section', 'fdfs', 'ttd.tid = fdfs.entity_id');
+  $query->condition('ttd.vid', $vocabulary->vid);
+  $query->condition('fdfs.field_section_target_id', $tid_section);
+
+  $topics = $query->execute()->fetchAll();
+
+  $options = array();
+  if (!empty($topics)) {
+    foreach ($topics as $topic) {
+      $options[$topic->tid] = $topic->name;
+    }
+  }
+
+  return $options;
+}
+
+/**
+ * Return select options of sections relations with employee.
+ */
+function _dc_relationship_of_fields_get_sections_options($nid_employee) {
+  $query = db_select('node', 'n');
+  $query->fields('ttd', array('tid', 'name'));
+  $query->innerJoin('field_data_field_sections_employees', 'fdfse', 'n.nid = fdfse.entity_id');
+  $query->innerJoin('taxonomy_term_data', 'ttd', 'fdfse.field_sections_employees_target_id = ttd.tid');
+  $query->condition('n.nid', $nid_employee);
+
+  $sections = $query->execute()->fetchAll();
+
+  $options = array();
+  if (!empty($sections)) {
+    foreach ($sections as $section) {
+      $options[$section->tid] = $section->name;
+    }
+  }
+
+  return $options;
+}
+
+/**
+ * Return select options of tasks which employee did not do before.
+ */
+function _dc_relationship_of_fields_get_tasks_options($tid_topic, $employee_nid) {
+  $query = db_select('field_data_field_nid_task', 'fdfnt');
+  $query->distinct();
+  $query->innerJoin('field_data_field_nid_employee', 'fdfne', 'fdfnt.entity_id = fdfne.entity_id');
+  $query->fields('fdfnt', array('field_nid_task_target_id'));
+  $query->condition('fdfne.field_nid_employee_target_id', $employee_nid);
+  $tasks_nids = $query->execute()->fetchAll();
+
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid', 'title'));
+  $query->innerJoin('field_data_field_task_topic', 'fdftt', 'n.nid = fdftt.entity_id');
+  $query->condition('fdftt.field_task_topic_target_id', $tid_topic);
+
+  if ($tasks_nids) {
+    $nids = array();
+    foreach ($tasks_nids as $task_nid) {
+      $nids[] = $task_nid->field_nid_task_target_id;
+    }
+    $query->condition('nid', $nids, 'NOT IN');
+  }
+  $tasks = $query->execute()->fetchAll();
+
+  $options = array();
+  if ($tasks) {
+    foreach ($tasks as $task) {
+      $options[$task->nid] = $task->title;
+    }
+  }
+
+  return $options;
+}
+
+/**
+ * Return employee options by uid from currently logged in user
+ */
+function _dc_relationship_get_employees_options_by_uid() {
+  global $user;
+
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid', 'title'));
+  $query->condition('n.type', 'employees');
+  $query->condition('n.uid', $user->uid);
+  $employees = $query->execute()->fetchAll();
+
+  $options = array();
+  if ($employees) {
+    foreach ($employees as $employee) {
+      $options[$employee->nid] = $employee->title;
+    }
+  }
+
+  return $options;
+}
+
+/**
+ * Return section options by uid from currently logged in user
+ */
+function _dc_relationship_get_sections_options_by_uid() {
+  global $user;
+
+  $query = db_select('field_data_field_sections_user', 'fdfsu');
+  $query->fields('fdfsu', array('field_sections_user_target_id'));
+  $query->condition('fdfsu.entity_id', $user->uid);
+  $tid_sections = $query->execute()->fetchAll();
+
+  $options = array();
+  foreach ($tid_sections as $tid_section) {
+    $section = taxonomy_term_load($tid_section->field_sections_user_target_id);
+    $options[$section->tid] = $section->name;
+  }
+
+  return $options;
+}
+
+function _dc_relationship_get_tasks_options_by_uid() {
+  global $user;
+
+  $query = db_select('node','n');
+  $query->fields('n',array('nid','title'));
+  $query->condition('type','tasks');
+  $query->condition('uid', $user->uid);
+  $result = $query->execute()->fetchAll();
+  
+  $options = array();
+  foreach ($result as $item) {
+    $options[$item->nid] = $item->title;
+  }
+  
+  return $options;
+}
+
+/**
+ * Return field_task_topic
+ */
+function dc_relationship_of_fields_task_topic_form($form, &$form_state) {
+  return $form['field_task_topic'];
+}
+
+/**
+ * Return field_section_at
+ */
+function _dc_relationship_of_fields_field_section_at($form, &$form_state) {
+  return $form['field_section_at'];
+}
+
+/**
+ * Return field_topic_at
+ */
+function _dc_relationship_of_fields_field_topic_at($form, &$form_state) {
+  return $form['field_topic_at'];
+}
+
+/**
+ * Return field_nid_task
+ */
+function _dc_relationship_of_fields_field_nid_task($form, &$form_state) {
+  return $form['field_nid_task'];
+}

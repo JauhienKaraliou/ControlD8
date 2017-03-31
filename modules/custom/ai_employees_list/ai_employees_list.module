@@ -1,0 +1,78 @@
+<?php
+/**
+ * @file
+ * Module for listing existing employees and their task statistics.
+ */
+
+require_once 'includes/ai_employees_list.inc';
+
+/**
+ * Implements hook_block_info().
+ */
+function ai_employees_list_block_info() {
+  $blocks = array();
+
+  $blocks['employee_list'] = array(
+    'info' => t('Show employees list with task statistics'),
+  );
+  $blocks['tasks_list_download'] = array(
+    'info' => t('Provides link to download all tasks in doc format'),
+  );
+
+  $blocks['employee_list_not_active'] = array(
+    'info' => t('Show employees that don\'t active list with task statistics'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function ai_employees_list_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'employee_list':
+      $employees_list = ai_employees_list_get_list();
+      if (!empty($employees_list)) {
+        $block['subject'] = 'Employees progress';
+        $block['content'] = theme('table', ai_employees_list_prepare_list($employees_list));
+      }
+      break;
+
+    case 'employee_list_not_active':
+      $fired_employees_list = ai_employees_list_get_list('fired');
+      if (!empty($fired_employees_list)) {
+        $block['subject'] = 'Fired employees progress';
+        $block['content'] = theme('table', ai_employees_list_prepare_list_who_leave($fired_employees_list));
+      }
+      break;
+
+    case 'tasks_list_download':
+      $block['subject'] = 'Download tasks list';
+      $block['content'] = l(t('Download tasks list in doc format'), 'doc-file-download/');
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ai_employees_list_theme() {
+  return array(
+    'cool_progressbar' => array(
+      'variables' => array(
+        'percentage' => NULL,
+        'percentage_not_done' => NULL,
+      ),
+      'template' => 'templates/cool_progressbar',
+    ),
+    'table_cell' => array(
+      'variables' => array(
+        'value' => NULL,
+      ),
+      'template' => 'templates/table_cell',
+    )
+  );
+}

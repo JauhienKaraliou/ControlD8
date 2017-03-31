@@ -1,0 +1,6 @@
+name: Employees list
+description: Module for listing existing employees and their task statistics
+package: Custom
+
+type: module
+core: 8.x

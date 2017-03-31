@@ -1,0 +1,95 @@
+<?php
+/**
+ * @file
+ * Send email after assigned task
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function dc_mailer_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'assigned_tasks_node_form') {
+    $form['#submit'][] = 'dc_mailer_send_email_submit';
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function dc_mailer_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'assigned_task':
+      $message['subject'] = t('Assigned Task');
+      $message['body'][] = t('You have new assigned task: ' . $params['title']);
+      $message['body'][] = t('Topic: ' . $params['topic']);
+      $message['body'][] = t('Approximate time: ' . $params['approximate_time']);
+      $message['body'][] = t($params['body']);
+      if (isset($params['file_url'])) {
+        $message['body'][] = t('Link to file: ' . $params['file_url']);
+      }
+
+//      Params for attaching file
+//      $message['params']['attachments'][] = $params['attached_file'];
+      break;
+  }
+}
+
+/**
+ * Send email to employee
+ */
+function dc_mailer_send_email_submit(&$form, &$form_state) {
+  $employee = node_load($form_state['values']['field_nid_employee']['und'][0]['target_id']);
+
+  if (isset($employee->field_email['und'][0]['value'])) {
+    $params = _dc_mailer_get_params($form_state['values']['field_nid_task']['und'][0]['target_id']);
+
+    drupal_mail('dc_mailer', 'assigned_task', $employee->field_email['und'][0]['value'], language_default(), $params, 'alex.unlitsolutions@gmail.com', TRUE);
+  }
+}
+
+function _dc_mailer_send_email($nid_employee, $nid_task) {
+  $employee = node_load($nid_employee);
+
+  if (isset($employee->field_email['und'][0]['value'])) {
+    $params = _dc_mailer_get_params($nid_task);
+    drupal_mail('dc_mailer', 'assigned_task', $employee->field_email['und'][0]['value'], language_default(), $params, 'alex.unlitsolutions@gmail.com', TRUE);
+  }
+}
+
+/**
+ * Return data for email
+ */
+function _dc_mailer_get_params($nid_task) {
+  $task = node_load($nid_task);
+
+  $params['topic'] = 'N/A';
+  if (isset($task->field_task_topic['und'][0]['target_id'])) {
+    $tid_topic = $task->field_task_topic['und'][0]['target_id'];
+    $topic = taxonomy_term_load($tid_topic);
+    $params['topic'] = $topic->name;
+  }
+
+  $params['approximate_time'] = 'N/A';
+  if (isset($task->field_approximate_time['und'][0]['value'])) {
+    $params['approximate_time'] = $task->field_approximate_time['und'][0]['value'];
+  }
+
+//  $params['attached_file'] = '';
+  $params['file_url'] = '';
+  if (isset($task->field_file_task[LANGUAGE_NONE][0])) {
+    $params['file_url'] = file_create_url($task->field_file_task[LANGUAGE_NONE][0]['uri']);
+
+//    Params for attaching file
+
+//    $params['attached_file'] = array(
+//      'filecontent' => file_get_contents($task->field_file_task['und'][0]['uri']),
+//      'filename' => $task->field_file_task['und'][0]['filename'],
+//      'filemime' => $task->field_file_task['und'][0]['filemime'],
+//    );
+  }
+
+  $params['title'] = $task->title;
+  $params['body'] = $task->body['und'][0]['value'];
+
+  return $params;
+}

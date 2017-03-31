@@ -1,0 +1,6 @@
+dc_changer.change_status:
+  path: '/change-status/{method}/{task_status}/{nid}'
+  defaults:
+    _controller: '\Drupal\dc_changer\Controller\ChangeStatusController::changeStatus'
+  requirements:
+    _permission: 'access content'
